@@ -1,0 +1,22 @@
+# 本地依赖与构建产物
+node_modules/
+.electron-cache/
+dist/
+release/
+build/icon.icns
+
+# 用户本地项目、资产与运行数据
+projects/
+asset-library/
+.manual-open.log
+.workbench-server.log
+*.log
+.DS_Store
+
+# 本地配置与密钥
+.env
+.env.*
+!.env.example
+
+# 测试生成的临时输出
+test/e2e-output.json

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["midjourney", "gptImage2"],
+  "properties": {
+    "midjourney": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["promptChinese", "promptEnglish"],
+      "properties": {
+        "promptChinese": { "type": "string" },
+        "promptEnglish": { "type": "string" }
+      }
+    },
+    "gptImage2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["promptChinese", "promptEnglish"],
+      "properties": {
+        "promptChinese": { "type": "string" },
+        "promptEnglish": { "type": "string" }
+      }
+    }
+  }
+}

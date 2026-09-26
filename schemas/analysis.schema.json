@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "layers", "referencePlan", "platformPrompts", "warnings"],
+  "properties": {
+    "summary": {
+      "type": "string"
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "sourceType",
+          "observation",
+          "inference",
+          "promptText",
+          "confidence",
+          "enabled"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "style",
+              "space",
+              "composition",
+              "camera",
+              "lighting",
+              "color",
+              "material",
+              "atmosphere",
+              "subject",
+              "product",
+              "constraints",
+              "exclusions"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["observed", "inferred", "user_mixed"]
+          },
+          "observation": {
+            "type": "string"
+          },
+          "inference": {
+            "type": "string"
+          },
+          "promptText": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "referencePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "midjourneyPrimaryUse",
+        "midjourneyPrimaryReason",
+        "midjourneyProductUse",
+        "midjourneyProductReason",
+        "gptPrimaryRole",
+        "gptProductRole"
+      ],
+      "properties": {
+        "midjourneyPrimaryUse": {
+          "type": "string",
+          "enum": ["Style Reference", "Image Prompt", "Omni Reference", "Not needed"]
+        },
+        "midjourneyPrimaryReason": {
+          "type": "string"
+        },
+        "midjourneyProductUse": {
+          "type": "string",
+          "enum": ["Style Reference", "Image Prompt", "Omni Reference", "Not provided", "Not needed"]
+        },
+        "midjourneyProductReason": {
+          "type": "string"
+        },
+        "gptPrimaryRole": {
+          "type": "string"
+        },
+        "gptProductRole": {
+          "type": "string"
+        }
+      }
+    },
+    "platformPrompts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["midjourney", "gptImage2"],
+      "properties": {
+        "midjourney": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["prompt", "promptChinese", "promptEnglish", "referenceUsage", "parameters", "negativeGuidance"],
+          "properties": {
+            "prompt": { "type": "string" },
+            "promptChinese": { "type": "string" },
+            "promptEnglish": { "type": "string" },
+            "referenceUsage": { "type": "string" },
+            "parameters": { "type": "string" },
+            "negativeGuidance": { "type": "string" }
+          }
+        },
+        "gptImage2": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["prompt", "promptChinese", "promptEnglish", "imageRoles", "editBoundary", "negativeGuidance"],
+          "properties": {
+            "prompt": { "type": "string" },
+            "promptChinese": { "type": "string" },
+            "promptEnglish": { "type": "string" },
+            "imageRoles": { "type": "string" },
+            "editBoundary": { "type": "string" },
+            "negativeGuidance": { "type": "string" }
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 8
+    }
+  }
+}

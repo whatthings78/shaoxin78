@@ -1,0 +1,87 @@
+{
+  "name": "reference-prompt-workbench",
+  "version": "0.9.0",
+  "description": "本地参考图反推与视觉提示词工作台",
+  "author": "参考图反推工作台",
+  "private": true,
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs && node --check public/app.js && node --check desktop/main.cjs && node --check scripts/generate-icon.mjs",
+    "test": "node test/smoke.mjs && node test/embedded-server.mjs",
+    "test:e2e": "node test/e2e.mjs",
+    "package:mac": "node scripts/package-macos.mjs",
+    "desktop:dev": "electron .",
+    "test:desktop": "WORKBENCH_DESKTOP_SMOKE=1 electron .",
+    "build:icon": "node scripts/generate-icon.mjs",
+    "package:desktop": "npm run build:icon && electron-builder --mac dir zip",
+    "package:desktop:dmg": "npm run package:desktop && node scripts/package-dmg.mjs"
+  },
+  "build": {
+    "appId": "com.shaoxin.reference-prompt-workbench",
+    "productName": "参考图反推工作台",
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "electronDist": "node_modules/electron/dist",
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+    "files": [
+      "public/**/*",
+      "schemas/**/*",
+      "desktop/**/*",
+      "server.mjs",
+      "package.json",
+      "!projects/**/*",
+      "!asset-library/**/*",
+      "!dist/**/*",
+      "!release/**/*",
+      "!test/**/*",
+      "!scripts/**/*"
+    ],
+    "asar": true,
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "dmg": {
+      "window": {
+        "width": 640,
+        "height": 420
+      },
+      "contents": [
+        {
+          "x": 180,
+          "y": 210
+        },
+        {
+          "x": 460,
+          "y": 210,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.2.0",
+    "electron-builder": "^26.15.3"
+  }
+}

@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="color">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="本地参考图反推与 Midjourney、GPT Image 2 提示词工作台"
+    />
+    <title>FRAME / DNA · 参考图反推工作台</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <p class="ui-runtime-error" id="ui-runtime-error" role="alert" hidden></p>
+
+    <header class="topbar">
+      <a class="brand" href="#top" data-workspace-action="home" aria-label="回到首页">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span>
+          <strong>FRAME / DNA</strong>
+          <small>参考图反推工作台 · v0.9.0</small>
+        </span>
+      </a>
+      <div class="theme-switcher" id="theme-switcher" role="group" aria-label="界面主题">
+        <span class="theme-switcher-label"><span class="theme-switcher-icon" aria-hidden="true">◐</span>主题</span>
+        <div class="theme-options">
+          <button class="theme-option" type="button" data-theme-option="dark" aria-pressed="false" title="暗色电影制片台">
+            <span class="theme-option-dot theme-option-dot-dark" aria-hidden="true"></span><span>暗色</span>
+          </button>
+          <button class="theme-option" type="button" data-theme-option="light" aria-pressed="false" title="亮色编辑工作室">
+            <span class="theme-option-dot theme-option-dot-light" aria-hidden="true"></span><span>亮色</span>
+          </button>
+          <button class="theme-option active" type="button" data-theme-option="color" aria-pressed="true" title="彩色导演分镜台">
+            <span class="theme-option-dot theme-option-dot-color" aria-hidden="true"></span><span>彩色</span>
+          </button>
+        </div>
+        <span class="theme-current" id="theme-current">彩色</span>
+      </div>
+      <div class="topbar-actions">
+        <div class="project-controls">
+          <input id="project-title" type="text" maxlength="120" value="未命名项目" aria-label="项目名称" />
+          <button id="save-project" type="button">保存项目</button>
+          <button id="open-projects" type="button" aria-expanded="false">项目库</button>
+          <div class="projects-popover" id="projects-popover" hidden>
+            <div class="projects-popover-head">
+              <strong>本地项目</strong>
+              <span id="projects-count">0</span>
+            </div>
+            <div id="projects-list" class="projects-list"></div>
+          </div>
+        </div>
+        <div class="system-status" id="system-status" aria-live="polite">
+          <span class="status-light"></span>
+          <span>正在检查 Codex</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="app-sidebar" aria-label="工作区导航">
+        <div class="sidebar-intro">
+          <span>CREATIVE WORKSPACES</span>
+          <p>把每一步创作，放在该做的地方。</p>
+        </div>
+        <nav class="workspace-nav" id="workspace-nav" aria-label="创作工作区">
+          <button class="workspace-nav-item active" type="button" data-workspace="home" aria-current="page">
+            <span class="workspace-nav-index">00</span>
+            <span class="workspace-nav-copy"><strong>首页</strong><small>项目总览</small></span>
+            <span class="workspace-nav-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="workspace-nav-item" type="button" data-workspace="image">
+            <span class="workspace-nav-index">01</span>
+            <span class="workspace-nav-copy"><strong>图片反推</strong><small>参考图与提示词</small></span>
+            <span class="workspace-nav-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="workspace-nav-item" type="button" data-workspace="covers">
+            <span class="workspace-nav-index">02</span>
+            <span class="workspace-nav-copy"><strong>平台封面</strong><small>尺寸与取景</small></span>
+            <span class="workspace-nav-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="workspace-nav-item" type="button" data-workspace="product">
+            <span class="workspace-nav-index">03</span>
+            <span class="workspace-nav-copy"><strong>产品工坊</strong><small>产品与场景续写</small></span>
+            <span class="workspace-nav-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="workspace-nav-item" type="button" data-workspace="video">
+            <span class="workspace-nav-index">04</span>
+            <span class="workspace-nav-copy"><strong>视频拉片</strong><small>选段与逐镜拆解</small></span>
+            <span class="workspace-nav-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="workspace-nav-item" type="button" data-workspace="assets">
+            <span class="workspace-nav-index">05</span>
+            <span class="workspace-nav-copy"><strong>视觉资产库</strong><small>提示词与学习卡</small></span>
+            <span class="workspace-nav-arrow" aria-hidden="true">↗</span>
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <span>LOCAL MODE</span>
+          <p>项目、提示词和资产均保存在本机。</p>
+        </div>
+      </aside>
+
+      <main id="top" class="app-main">
+      <section class="workspace-view workspace-home" id="workspace-home" data-workspace-view="home">
+        <header class="home-hero">
+          <span class="eyebrow"><span>00</span> CREATIVE CONTROL CENTER</span>
+          <h1>把创作拆成清晰的<br /><em>下一步。</em></h1>
+          <p>从一张参考图、一个产品想法或一段视频开始。当前项目、已有素材和下一步入口，都集中在这里。</p>
+        </header>
+
+        <section class="home-project-overview" aria-labelledby="home-project-heading">
+          <div class="home-project-copy">
+            <span class="section-kicker">ACTIVE PROJECT</span>
+            <h2 id="home-project-heading">当前项目：<strong id="home-project-name">未命名项目</strong></h2>
+            <p id="home-project-meta">还没有载入主参考图。可以先从图片反推开始。</p>
+            <div class="home-project-actions">
+              <button class="home-primary-action" type="button" data-workspace-action="image">进入图片反推 <span aria-hidden="true">↗</span></button>
+              <button class="home-secondary-action" type="button" data-workspace-action="assets">查看资产库</button>
+            </div>
+          </div>
+          <dl class="home-project-stats">
+            <div><dt>主参考图</dt><dd id="home-image-status">未载入</dd></div>
+            <div><dt>视觉资产</dt><dd id="home-asset-count">0 个</dd></div>
+            <div><dt>视频拉片</dt><dd id="home-video-status">未开始</dd></div>
+          </dl>
+        </section>
+
+        <section class="home-workspace-section" aria-labelledby="home-workspace-heading">
+          <div class="home-section-heading">
+            <div>
+              <span class="section-kicker">START HERE</span>
+              <h2 id="home-workspace-heading">选择这次要做的工作</h2>
+            </div>
+            <p>每次只进入一个工作区，避免所有面板同时占满页面。</p>
+          </div>
+          <div class="home-workspace-grid">
+            <button class="home-workspace-card image" type="button" data-workspace-action="image">
+              <span>01</span><strong>图片反推</strong><p>从参考图提取风格、空间、构图和双平台提示词。</p><em>打开工作区 ↗</em>
+            </button>
+            <button class="home-workspace-card covers" type="button" data-workspace-action="covers">
+              <span>02</span><strong>平台封面设计</strong><p>同一张参考图，快速校准小红书与视频号的画幅、安全区和封面提示词。</p><em>打开工作区 ↗</em>
+            </button>
+            <button class="home-workspace-card product" type="button" data-workspace-action="product">
+              <span>03</span><strong>产品提示词工坊</strong><p>锁定产品身份，再用想法或场景参考继续生图。</p><em>打开工作区 ↗</em>
+            </button>
+            <button class="home-workspace-card video" type="button" data-workspace-action="video">
+              <span>04</span><strong>视频拉片</strong><p>先截取要分析的片段，再整理逐镜重制提示词。</p><em>打开工作区 ↗</em>
+            </button>
+            <button class="home-workspace-card assets" type="button" data-workspace-action="assets">
+              <span>05</span><strong>视觉资产库</strong><p>沉淀效果图、英文原文、中文对照和美学拆解。</p><em>打开工作区 ↗</em>
+            </button>
+          </div>
+        </section>
+
+        <section class="home-recent-section" aria-labelledby="home-recent-heading">
+          <div class="home-section-heading compact">
+            <div>
+              <span class="section-kicker">RECENT ASSETS</span>
+              <h2 id="home-recent-heading">最近沉淀的资产</h2>
+            </div>
+            <button class="text-button" type="button" data-workspace-action="assets">完整资产库 →</button>
+          </div>
+          <div class="home-recent-assets" id="home-recent-assets"></div>
+        </section>
+      </section>
+
+      <section class="workspace-view workspace-image" id="workspace-image" data-workspace-view="image" hidden>
+      <section class="hero">
+        <div class="eyebrow"><span>01</span> LOCAL VISUAL COMPILER</div>
+        <h1>把参考感觉，<br /><em>变成你能控制的画面语言。</em></h1>
+        <p>
+          先提取证据，再决定是否扩写空间。你决定继承什么，系统负责拆清楚并编译成
+          Midjourney 与 GPT Image 2 两套提示词。
+        </p>
+        <div class="hero-rule" aria-hidden="true">
+          <span>REFERENCE</span><b></b><span>SEMANTIC DNA</span><b></b><span>PLATFORM PROMPT</span>
+        </div>
+      </section>
+
+      <div class="workspace-layout">
+        <aside class="control-rail" aria-label="参考与反推设置">
+          <section class="panel panel-reference">
+            <div class="panel-heading">
+              <span class="panel-number">01</span>
+              <div>
+                <h2>参考素材</h2>
+                <p>主图负责视觉证据，产品图只锁定身份。</p>
+              </div>
+            </div>
+
+            <div class="upload-card primary-upload" id="primary-dropzone">
+              <input id="primary-file" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+              <div class="image-stage" id="primary-stage">
+                <img id="primary-preview" alt="主参考图预览" hidden />
+                <div class="crop-selection" id="crop-selection" hidden></div>
+                <button class="upload-placeholder" id="primary-upload-button" type="button">
+                  <span class="upload-glyph" aria-hidden="true">＋</span>
+                  <strong>拖入主参考图</strong>
+                  <small>PNG · JPG · WEBP · 最大 15MB</small>
+                </button>
+              </div>
+              <div class="image-toolbar" id="primary-toolbar" hidden>
+                <span class="file-name" id="primary-file-name"></span>
+                <div>
+                  <button class="text-button" id="crop-toggle" type="button">框选局部</button>
+                  <button class="text-button danger" id="primary-remove" type="button">移除</button>
+                </div>
+              </div>
+              <p class="crop-help" id="crop-help" hidden>空白处拖动可新建选区；拖住已有选框可移动位置并精调。</p>
+            </div>
+
+            <div class="upload-card compact-upload" id="product-dropzone">
+              <input id="product-file" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+              <button class="compact-upload-button" id="product-upload-button" type="button">
+                <img id="product-preview" alt="产品或主体参考图预览" hidden />
+                <span class="upload-glyph small" aria-hidden="true">＋</span>
+                <span class="compact-copy">
+                  <strong id="product-title">添加产品／主体参考</strong>
+                  <small id="product-file-name">可选 · 不继承背景和构图</small>
+                </span>
+              </button>
+              <button class="remove-product" id="product-remove" type="button" hidden aria-label="移除产品参考图">×</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <span class="panel-number">02</span>
+              <div>
+                <h2>反推范围</h2>
+                <p>只选真正需要继承的视觉方法。</p>
+              </div>
+            </div>
+            <div class="scope-grid" id="scope-grid">
+              <label><input type="checkbox" value="style" checked /><span>风格</span></label>
+              <label><input type="checkbox" value="space" checked /><span>空间</span></label>
+              <label><input type="checkbox" value="composition" checked /><span>构图</span></label>
+              <label><input type="checkbox" value="camera" checked /><span>镜头</span></label>
+              <label><input type="checkbox" value="lighting" checked /><span>光线</span></label>
+              <label><input type="checkbox" value="color" checked /><span>色彩</span></label>
+              <label><input type="checkbox" value="material" checked /><span>材质</span></label>
+              <label><input type="checkbox" value="atmosphere" checked /><span>氛围</span></label>
+              <label><input type="checkbox" value="subject" /><span>主体</span></label>
+              <label><input type="checkbox" value="product" /><span>产品</span></label>
+            </div>
+          </section>
+
+          <section class="panel direction-panel">
+            <div class="panel-heading">
+              <span class="panel-number">03</span>
+              <div>
+                <h2>导演要求</h2>
+                <p>全部可选。不填写时，只反推参考图本身。</p>
+              </div>
+            </div>
+
+            <div class="direction-mode" id="direction-mode" data-mode="pure" aria-live="polite">
+              <span class="direction-mode-mark" aria-hidden="true"></span>
+              <div>
+                <strong id="direction-mode-title">纯反推模式</strong>
+                <small id="direction-mode-copy">只需上传参考图，不新增场景，也不要求填写导演说明。</small>
+              </div>
+              <button id="pure-reverse-button" type="button">只反推原画面</button>
+            </div>
+
+            <label class="field">
+              <span>我要继承 <b class="optional-note">可选 · 空白自动填“无”</b></span>
+              <textarea id="inherit-text" rows="3" placeholder="不填也可以。需要限定时，可点下面的参考短语。"></textarea>
+            </label>
+            <div class="suggestion-chips" aria-label="我要继承参考短语">
+              <button type="button" data-fill-target="inherit-text" data-fill-value="继承整体视觉语言，包括构图、光线、色彩与氛围。">整体视觉语言</button>
+              <button type="button" data-fill-target="inherit-text" data-fill-value="只继承风格、色彩与材质，不复制具体主体。">风格与色彩</button>
+              <button type="button" data-fill-target="inherit-text" data-fill-value="只继承光线、空气感与空间层次。">光线与氛围</button>
+            </div>
+
+            <label class="field">
+              <span>目标画面 <b class="optional-note">可选 · 不填则保持原场景</b></span>
+              <textarea id="target-scene" rows="5" placeholder="不填时只反推原画面；需要扩写时，再说明前景、中景、远景或主体位置。"></textarea>
+            </label>
+            <div class="suggestion-chips" aria-label="目标画面参考短语">
+              <button type="button" data-fill-target="target-scene" data-fill-mode="replace" data-fill-value="保持参考图原有场景与构图，不做空间扩写，只生成画面反推提示词。">保持原画面</button>
+              <button type="button" data-fill-target="target-scene" data-fill-mode="replace" data-fill-value="扩写成横向电影大全景，延续参考图的视觉语言，并补全合理的前景、中景与远景。">横向大全景</button>
+              <button type="button" data-fill-target="target-scene" data-fill-mode="replace" data-fill-value="在不改变核心风格的前提下，增加清晰的前景、中景与远景层次。">增加空间层次</button>
+            </div>
+            <div class="outpaint-preset" aria-label="竖图转横构图扩展预设">
+              <div>
+                <span>HORIZONTAL OUTPAINT</span>
+                <strong>竖图转 16:9 横构图</strong>
+                <p>不是裁切原图：主体的形态、姿势、比例与位置保持不变，只向左右两端自然补全原有场景。</p>
+              </div>
+              <button type="button" data-fill-target="target-scene" data-fill-mode="replace" data-set-aspect-ratio="16:9" data-outpaint-preset="true" data-fill-value="将竖屏参考图进行 16:9 横构图左右扩展：完整保留原图主体的身份、形态、姿势、服装或产品造型、比例、位置与原有内容关系；不裁切、不拉伸、不缩放主体，也不复制第二个主体。以原图主体为核心，只向左、右两端自然延展与原图一致的场景、空间层次、光线、色彩、材质与空气感；新增区域只补全合理环境，不新增故事、人物、建筑或无关物体。">16:9 左右扩展</button>
+            </div>
+
+            <label class="field">
+              <span>明确排除 <b class="optional-note">可选 · 空白自动填“无”</b></span>
+              <textarea id="exclude-text" rows="3" placeholder="不填也可以。需要避开具体内容时，可点下面的参考短语。"></textarea>
+            </label>
+            <div class="suggestion-chips" aria-label="明确排除参考短语">
+              <button type="button" data-fill-target="exclude-text" data-fill-value="不要文字、Logo、水印和平台界面。">文字与水印</button>
+              <button type="button" data-fill-target="exclude-text" data-fill-value="不要复制原图中的具体人物或可识别主体。">具体人物主体</button>
+              <button type="button" data-fill-target="exclude-text" data-fill-value="不要额外增加参考图中不存在的元素。">不增加新元素</button>
+            </div>
+
+            <label class="select-field">
+              <span>目标画幅</span>
+              <select id="aspect-ratio">
+                <option value="16:9">16:9 · 横向电影画面</option>
+                <option value="21:9">21:9 · 超宽大全景</option>
+                <option value="3:2">3:2 · 摄影画幅</option>
+                <option value="9:16">9:16 · 竖屏视频首帧</option>
+                <option value="1:1">1:1 · 方形构图</option>
+              </select>
+            </label>
+
+            <button class="analyze-button" id="analyze-button" type="button">
+              <span class="button-label">直接反推参考图</span>
+              <span class="button-arrow" aria-hidden="true">↗</span>
+            </button>
+            <p class="default-note">空白项会在提交时自动写成“无”，不会阻止分析。</p>
+            <p class="privacy-note">点击后，图片通过本机 Codex 登录发送给 Codex 服务分析。</p>
+            <p class="analysis-feedback" id="analysis-feedback" hidden aria-live="polite"></p>
+          </section>
+
+          <section class="panel model-panel">
+            <div class="panel-heading">
+              <span class="panel-number">04</span>
+              <div>
+                <h2>输出与推理</h2>
+                <p>先选你这次需要的结果深度，再选择 Codex 模型。</p>
+              </div>
+            </div>
+
+            <label class="select-field analysis-mode-field">
+              <span>反推输出模式</span>
+              <select id="analysis-mode" aria-describedby="analysis-mode-note">
+                <option value="quick">快速结果 · 只生成最终提示词（赶时间时）</option>
+                <option value="layered">分层分析 · 提示词 + 可编辑语义层</option>
+              </select>
+            </label>
+            <p class="analysis-mode-note" id="analysis-mode-note">生成可编辑的风格、空间、构图、镜头等语义层，并分开列出画面事实与 AI 推断；适合精调、重新编译和生成三套候选。</p>
+
+            <label class="select-field model-select-field">
+              <span>Codex 模型</span>
+              <select id="codex-model" aria-describedby="model-note">
+                <option value="auto">自动 · 跟随 Codex 配置（推荐）</option>
+                <option value="gpt-5.6-sol">GPT-5.6 Sol · 最高质量（gpt-5.6-sol）</option>
+                <option value="gpt-5.6-terra">GPT-5.6 Terra · 质量／速度均衡（gpt-5.6-terra）</option>
+                <option value="gpt-5.6-luna">GPT-5.6 Luna · 快速迭代（gpt-5.6-luna）</option>
+                <option value="deepseek/deepseek-v4-pro">DeepSeek V4 Pro · 高质量反推（deepseek/deepseek-v4-pro）</option>
+                <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash · 快速迭代（deepseek/deepseek-v4-flash）</option>
+                <option value="deepseek/deepseek-v4-flash-vision-exp">DeepSeek V4 Flash Vision 实验版（deepseek/deepseek-v4-flash-vision-exp）</option>
+              </select>
+            </label>
+            <p class="model-note" id="model-note">自动模式不覆盖 Codex 当前配置，最不容易因模型更新而失效。</p>
+            <p class="model-applies">应用于：图片反推 + 语义层重新编译</p>
+          </section>
+        </aside>
+
+        <section class="result-stage" aria-label="反推结果">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-visual" aria-hidden="true">
+              <span class="frame-corner top-left"></span>
+              <span class="frame-corner top-right"></span>
+              <span class="frame-corner bottom-left"></span>
+              <span class="frame-corner bottom-right"></span>
+              <div class="focus-orbit"><i></i><i></i><i></i></div>
+              <strong>等待视觉证据</strong>
+            </div>
+            <h2>从一张局部参考图开始</h2>
+            <p>上传并选择反推范围即可开始；导演要求可以全部留空。</p>
+            <button class="empty-upload-action" id="empty-upload-action" type="button">
+              <span id="empty-upload-action-label">选择主参考图</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+            <ol>
+              <li><span>1</span>上传参考</li>
+              <li><span>2</span>选择范围</li>
+              <li><span>3</span>直接反推</li>
+            </ol>
+          </div>
+
+          <div class="loading-state" id="loading-state" hidden aria-live="polite">
+            <div class="scanner" aria-hidden="true"><i></i></div>
+            <span class="loading-index" id="loading-index">01 / 04</span>
+            <h2 id="loading-title">正在读取画面证据</h2>
+            <p id="loading-copy">区分可见事实、合理推断与用户创作要求。</p>
+            <p class="loading-elapsed" id="loading-elapsed">已开始请求，正在等待 Codex 响应。</p>
+          </div>
+
+          <div class="results" id="results" hidden>
+            <header class="results-header">
+              <div>
+                <span class="section-kicker">SEMANTIC MASTER</span>
+                <h2>视觉语义母版</h2>
+                <p id="analysis-summary"></p>
+                <span class="analysis-mode-badge" id="analysis-mode-badge"></span>
+              </div>
+              <div class="result-actions">
+                <button class="secondary-button" id="save-version" type="button">保存版本</button>
+                <button class="secondary-button" id="restore-version" type="button">恢复上一版</button>
+                <button class="secondary-button" id="export-menu" type="button" aria-expanded="false">导出</button>
+                <div class="export-popover" id="export-popover" hidden>
+                  <button id="export-markdown" type="button">导出 Markdown</button>
+                  <button id="export-json" type="button">导出 JSON</button>
+                </div>
+              </div>
+            </header>
+
+            <div class="reference-plan" id="reference-plan"></div>
+
+            <div class="layers-heading" id="layers-heading">
+              <div>
+                <span class="section-kicker">EDITABLE LAYERS</span>
+                <h3>逐层调整</h3>
+              </div>
+              <div class="version-meta">
+                <span id="layer-change-count">0 项修改</span>
+                <span id="version-count">0 个版本</span>
+              </div>
+            </div>
+            <div class="layers-grid" id="layers-grid"></div>
+
+            <section class="composition-section" id="composition-section">
+              <div class="composition-heading">
+                <div>
+                  <span class="section-kicker">COMPOSITION ANCHORS</span>
+                  <h3>空间锚点</h3>
+                  <p>把想保留的位置变成坐标。拖动方框移动位置，拖右下角手柄调整范围。</p>
+                </div>
+                <span id="anchor-count" class="anchor-count">0 个锚点</span>
+              </div>
+              <div class="anchor-tools" aria-label="添加构图锚点">
+                <button type="button" data-anchor-type="subject">＋ 主体焦点</button>
+                <button type="button" data-anchor-type="foreground">＋ 前景框景</button>
+                <button type="button" data-anchor-type="horizon">＋ 地平线</button>
+                <button type="button" data-anchor-type="negative_space">＋ 留白区域</button>
+              </div>
+              <div class="composition-toolbar">
+                <div>
+                  <strong id="composition-format-name">横构图 · 16:9</strong>
+                  <span>拖动参考图选择取景；彩色锚点可单独拖动。</span>
+                </div>
+                <div class="composition-zoom-controls" aria-label="参考图取景缩放">
+                  <button id="composition-zoom-out" type="button" aria-label="缩小参考图">−</button>
+                  <span id="composition-zoom-label">100%</span>
+                  <button id="composition-zoom-in" type="button" aria-label="放大参考图">＋</button>
+                  <button id="composition-reset" type="button">复位取景</button>
+                </div>
+              </div>
+              <div class="composition-compare" aria-label="横竖构图对照">
+                <button class="composition-compare-card" type="button" data-composition-aspect="16:9" aria-pressed="true">
+                  <span class="composition-compare-copy"><strong>横构图</strong><small>16:9 · 电影画面</small></span>
+                  <span class="composition-mini-frame landscape"><img id="composition-preview-landscape" alt="" draggable="false" /></span>
+                </button>
+                <button class="composition-compare-card" type="button" data-composition-aspect="9:16" aria-pressed="false">
+                  <span class="composition-compare-copy"><strong>竖构图</strong><small>9:16 · 视频首帧</small></span>
+                  <span class="composition-mini-frame portrait"><img id="composition-preview-portrait" alt="" draggable="false" /></span>
+                </button>
+              </div>
+              <div class="composition-stage" id="composition-stage" aria-label="可移动参考图与构图锚点画布">
+                <img class="composition-image" id="composition-image" alt="" draggable="false" />
+                <div class="composition-grid" aria-hidden="true"></div>
+                <p class="composition-empty" id="composition-empty">上传主参考图后，可直接拖动图片选择取景；没有图片时，锚点仍可用于规划新画面。</p>
+              </div>
+              <p class="composition-hint">使用「＋／−」调整放大；点击横构图或竖构图会同步本次提示词的目标画幅。</p>
+              <p class="anchor-precision-note"><strong>识别边界：</strong>空间锚点会作为位置与范围约束写入提示词；若要让系统精确反推图中某个内容，请先用上方「框选局部」。</p>
+              <div class="anchor-list" id="anchor-list"></div>
+            </section>
+
+            <div class="compile-row" id="compile-row">
+              <div>
+                <strong>语义改完了吗？</strong>
+                <span>重新编译只处理文字，不再消耗图片分析。</span>
+              </div>
+              <button class="compile-button" id="compile-button" type="button">
+                重新编译双平台提示词 <span aria-hidden="true">→</span>
+              </button>
+            </div>
+
+            <section class="variants-section" id="variants-section">
+              <div class="variants-heading">
+                <div>
+                  <span class="section-kicker">PROMPT DIRECTIONS</span>
+                  <h3>三套候选方向</h3>
+                  <p>不重新读图，基于当前语义层与构图锚点生成忠实、平衡、创意三套方案。</p>
+                </div>
+                <button class="secondary-button" id="generate-variants" type="button">生成三套方向</button>
+              </div>
+              <div class="variants-grid" id="variants-grid"></div>
+            </section>
+
+            <section class="platform-section">
+              <div class="platform-tabs" role="tablist" aria-label="平台提示词">
+                <button class="platform-tab active" id="tab-midjourney" data-platform="midjourney" role="tab" aria-selected="true" type="button">
+                  <small>PLATFORM 01</small>
+                  <strong>Midjourney</strong>
+                </button>
+                <button class="platform-tab" id="tab-gpt" data-platform="gptImage2" role="tab" aria-selected="false" type="button">
+                  <small>PLATFORM 02</small>
+                  <strong>GPT Image 2</strong>
+                </button>
+              </div>
+              <p class="active-variant-status" id="active-variant-status" hidden aria-live="polite"></p>
+              <div class="prompt-language-row">
+                <div>
+                  <span class="prompt-language-label">提示词版本</span>
+                  <p id="prompt-language-note" class="prompt-language-note">中文用于核对语义，English 用于跨平台执行。</p>
+                </div>
+                <div class="prompt-language-actions" aria-label="切换提示词语言版本">
+                  <div class="prompt-language-switch" role="group" aria-label="提示词语言">
+                    <button class="prompt-language-tab" data-prompt-language="zh" type="button" aria-pressed="false">中文理解</button>
+                    <button class="prompt-language-tab" data-prompt-language="en" type="button" aria-pressed="true">English 执行</button>
+                  </div>
+                  <button class="prompt-language-complete" id="complete-prompt-languages" type="button" hidden>补全中英文版本</button>
+                </div>
+              </div>
+
+              <article class="platform-output" id="output-midjourney" role="tabpanel">
+                <div class="output-heading">
+                  <div>
+                    <span class="platform-dot mj"></span>
+                    <h3>Midjourney 最终提示词</h3>
+                  </div>
+                  <button class="copy-button" id="copy-midjourney-command" data-copy-command="midjourney" type="button">复制可执行命令</button>
+                </div>
+                <textarea id="midjourney-prompt" class="prompt-editor prompt-en" rows="10" spellcheck="false"></textarea>
+                <p class="midjourney-command-note" id="midjourney-command-note"><strong>先放图，再复制：</strong>把图片 1 拖入 Midjourney 的 <em>Image Prompt</em> 区域；本命令不会包含需要额外绑定图片的 <code>--sref</code>、<code>--sw</code>、<code>--oref</code> 或 <code>--ow</code>。</p>
+                <div class="output-meta-grid">
+                  <label><span>参考图用法</span><textarea id="midjourney-reference" rows="4"></textarea></label>
+                  <label><span>参数</span><textarea id="midjourney-parameters" rows="4"></textarea></label>
+                  <label class="wide"><span>负面引导</span><textarea id="midjourney-negative" rows="3"></textarea></label>
+                </div>
+              </article>
+
+              <article class="platform-output" id="output-gptImage2" role="tabpanel" hidden>
+                <div class="output-heading">
+                  <div>
+                    <span class="platform-dot gpt"></span>
+                    <h3>GPT Image 2 最终提示词</h3>
+                  </div>
+                  <button class="copy-button" data-copy-target="gpt-prompt" type="button">复制提示词</button>
+                </div>
+                <textarea id="gpt-prompt" class="prompt-editor" rows="12"></textarea>
+                <div class="output-meta-grid">
+                  <label><span>图片角色</span><textarea id="gpt-roles" rows="4"></textarea></label>
+                  <label><span>编辑边界</span><textarea id="gpt-boundary" rows="4"></textarea></label>
+                  <label class="wide"><span>禁止项</span><textarea id="gpt-negative" rows="3"></textarea></label>
+                </div>
+              </article>
+            </section>
+
+            <section class="feedback-section">
+              <div class="feedback-heading">
+                <div>
+                  <span class="section-kicker">RESULT FEEDBACK LOOP</span>
+                  <h3>生成结果校正</h3>
+                  <p>上传你在 Midjourney 或 GPT Image 2 生成的结果，只修正偏差，不推倒重来。</p>
+                </div>
+              </div>
+              <div class="feedback-upload" id="result-dropzone">
+                <input id="result-file" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+                <button id="result-upload-button" type="button" class="feedback-upload-button">
+                  <img id="result-preview" alt="生成结果图预览" hidden />
+                  <span id="result-upload-copy"><strong>上传生成结果图</strong><small>用于与主参考图比对</small></span>
+                </button>
+                <button id="result-remove" type="button" class="remove-result" hidden aria-label="移除生成结果图">×</button>
+              </div>
+              <div class="revision-issues" id="revision-issues" aria-label="希望修正的问题">
+                <span>优先修正</span>
+                <label><input type="checkbox" value="composition" /><span>构图位置</span></label>
+                <label><input type="checkbox" value="color" /><span>色彩气氛</span></label>
+                <label><input type="checkbox" value="product" /><span>产品／主体</span></label>
+                <label><input type="checkbox" value="scale" /><span>尺度层次</span></label>
+                <label><input type="checkbox" value="style" /><span>风格质感</span></label>
+                <label><input type="checkbox" value="lighting" /><span>光线</span></label>
+              </div>
+              <label class="field revision-note-field">
+                <span>补充说明 <b class="optional-note">可选</b></span>
+                <textarea id="revision-note" rows="3" placeholder="例如：建筑比例太小，右侧主体没有留出进入空间。"></textarea>
+              </label>
+              <button class="revision-button" id="revise-button" type="button">分析偏差并生成修正版 <span aria-hidden="true">↗</span></button>
+              <div class="revision-result" id="revision-result" hidden></div>
+            </section>
+
+            <section class="warnings" id="warnings-panel" hidden>
+              <span>注意边界</span>
+              <ul id="warnings-list"></ul>
+            </section>
+          </div>
+        </section>
+      </div>
+
+      </section>
+
+      <section class="workspace-view cover-workbench" id="workspace-covers" data-workspace-view="covers" hidden>
+        <header class="cover-heading">
+          <div>
+            <span class="eyebrow"><span>02</span> PLATFORM COVER CALIBRATOR</span>
+            <h1>一张参考图，<br /><em>落到正确的封面画幅。</em></h1>
+            <p>先校准平台尺寸，再调整主体焦点。预览只负责取景与安全区，不会改变原始参考图。</p>
+          </div>
+          <div class="cover-version-mark"><span>V0.9</span><small>NON-DESTRUCTIVE<br />COVER PREVIEW</small></div>
+        </header>
+
+        <div class="cover-layout">
+          <section class="cover-control-panel panel" aria-label="封面尺寸设置">
+            <div class="panel-heading">
+              <span class="panel-number">01</span>
+              <div><h2>平台预设</h2><p>选择导出画布，安全区会同步更新。</p></div>
+            </div>
+            <div class="cover-preset-grid" id="cover-preset-grid">
+              <button class="cover-preset active" type="button" data-cover-preset="xiaohongshu">
+                <span class="cover-preset-tag">XHS / NOTE</span><strong>小红书图文封面</strong><small>1080 × 1440 · 3:4</small>
+              </button>
+              <button class="cover-preset" type="button" data-cover-preset="channels-landscape">
+                <span class="cover-preset-tag">WECHAT CHANNELS</span><strong>视频号横版</strong><small>1280 × 720 · 16:9</small>
+              </button>
+              <button class="cover-preset" type="button" data-cover-preset="channels-portrait">
+                <span class="cover-preset-tag">WECHAT CHANNELS</span><strong>视频号竖版</strong><small>1080 × 1920 · 9:16</small>
+              </button>
+            </div>
+
+            <div class="cover-focus-controls">
+              <div class="cover-control-label"><span>主体横向焦点</span><output id="cover-focus-x-value">50%</output></div>
+              <input id="cover-focus-x" type="range" min="0" max="100" value="50" aria-label="主体横向焦点" />
+              <div class="cover-control-label"><span>主体纵向焦点</span><output id="cover-focus-y-value">52%</output></div>
+              <input id="cover-focus-y" type="range" min="0" max="100" value="52" aria-label="主体纵向焦点" />
+            </div>
+
+            <div class="cover-safe-note"><span>SAFE AREA</span><p>重要人物、标题与 Logo 建议放在中央 88% 区域；预览中的虚线框是平台封面安全区，不会写入导出图。</p></div>
+            <div class="cover-action-row">
+              <button class="primary" id="export-cover" type="button">导出当前封面 PNG <span aria-hidden="true">↗</span></button>
+              <button class="secondary-button" id="copy-cover-prompt" type="button">复制封面提示词</button>
+            </div>
+            <p class="cover-feedback" id="cover-feedback" hidden aria-live="polite"></p>
+          </section>
+
+          <section class="cover-preview-panel panel" aria-label="封面预览">
+            <div class="cover-preview-head"><div><span class="section-kicker">LIVE CROP PREVIEW</span><h2 id="cover-preview-title">小红书图文封面</h2></div><span class="cover-preview-size" id="cover-preview-size">1080 × 1440</span></div>
+            <div class="cover-stage-wrap">
+              <div class="cover-stage" id="cover-stage">
+                <img id="cover-preview" alt="平台封面裁切预览" hidden />
+                <div class="cover-safe-frame" aria-hidden="true"></div>
+                <div class="cover-stage-empty" id="cover-stage-empty"><strong>先载入主参考图</strong><span>返回图片反推工作区上传图片，封面预览会自动同步。</span><button id="cover-upload-action" type="button">去上传参考图</button></div>
+              </div>
+            </div>
+            <div class="cover-prompt-card"><div><span class="section-kicker">PROMPT PATCH</span><strong>平台封面提示词补丁</strong></div><textarea id="cover-prompt" rows="7" readonly aria-label="平台封面提示词"></textarea></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="asset-library-section standalone-asset-library workspace-view" id="asset-library" data-workspace-view="assets" hidden>
+        <div class="asset-heading">
+          <div>
+            <span class="section-kicker">VISUAL ASSET LIBRARY</span>
+            <h3>视觉资产库</h3>
+            <p>独立入口：不需要先完成主图反推。可把英文提示词对应的效果图保存为学习卡，也可把当前主参考图或生成结果图存为双平台提示词资产。</p>
+          </div>
+          <span class="asset-count" id="asset-count">0 个资产</span>
+        </div>
+
+        <section class="prompt-study-workshop" id="prompt-study-workshop" aria-labelledby="prompt-study-title">
+          <header class="prompt-study-heading">
+            <div>
+              <span class="prompt-study-kicker">PROMPT AESTHETICS · 学习卡</span>
+              <h4 id="prompt-study-title">提示词美学卡</h4>
+              <p>上传英文提示词生成的效果图，保留原始英文，并生成中文对照与“关键词—画面证据—视觉作用”拆解。</p>
+            </div>
+            <span class="prompt-study-badge">NEW · V0.6</span>
+          </header>
+
+          <div class="prompt-study-entry">
+            <div class="prompt-study-upload" id="prompt-study-dropzone">
+              <input id="prompt-study-file" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+              <button id="prompt-study-upload-button" type="button" class="prompt-study-upload-button">
+                <img id="prompt-study-image-preview" alt="提示词效果图预览" hidden />
+                <span class="prompt-study-upload-placeholder" id="prompt-study-upload-placeholder" aria-hidden="true">＋</span>
+                <span class="prompt-study-upload-copy">
+                  <strong id="prompt-study-image-title">上传效果图</strong>
+                  <small id="prompt-study-image-meta">PNG · JPG · WEBP · 最大 15MB</small>
+                </span>
+              </button>
+              <button id="prompt-study-image-remove" class="prompt-study-image-remove" type="button" hidden aria-label="移除提示词效果图">×</button>
+            </div>
+
+            <div class="prompt-study-fields">
+              <label>
+                <span>卡片名称 <b class="optional-note">可选 · 可自动生成</b></span>
+                <input id="prompt-study-title-input" maxlength="120" placeholder="例如：冷灰巨构与孤独人物" />
+              </label>
+              <label>
+                <span>原始英文提示词 <b>必填 · 原样保存</b></span>
+                <textarea id="prompt-study-english" rows="8" maxlength="14000" spellcheck="false" placeholder="Paste the exact English prompt used to generate this image…"></textarea>
+              </label>
+              <div class="prompt-study-submit-row">
+                <p>沿用上方选择的 Codex 模型；分析不会改写你的英文原文。</p>
+                <button id="analyze-prompt-study" type="button">生成中文与美学拆解 <span aria-hidden="true">↗</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="prompt-study-progress" id="prompt-study-progress" hidden aria-live="polite"><span></span></div>
+          <p class="prompt-study-feedback" id="prompt-study-feedback" hidden aria-live="polite"></p>
+
+          <div class="prompt-study-result" id="prompt-study-result" hidden>
+            <div class="prompt-study-result-copy">
+              <div class="prompt-study-result-heading">
+                <div>
+                  <span>ANALYSIS RESULT</span>
+                  <h5 id="prompt-study-result-title">提示词学习结果</h5>
+                </div>
+                <div>
+                  <button class="text-button" id="copy-prompt-study-english" type="button">复制英文</button>
+                  <button class="text-button" id="copy-prompt-study-chinese" type="button">复制中文</button>
+                </div>
+              </div>
+              <p id="prompt-study-summary" class="prompt-study-summary"></p>
+              <label class="prompt-study-chinese-field">
+                <span>中文提示词 <b class="optional-note">可编辑</b></span>
+                <textarea id="prompt-study-chinese" rows="8"></textarea>
+              </label>
+              <div class="prompt-study-analysis-heading">
+                <span>核心美学拆解</span>
+                <small>关键词来自英文原文，结论同时核对效果图</small>
+              </div>
+              <div class="prompt-study-analysis-list" id="prompt-study-analysis-list"></div>
+            </div>
+
+            <aside class="prompt-study-preview-panel">
+              <span>SHARE CARD PREVIEW</span>
+              <div class="prompt-study-preview-frame">
+                <img id="prompt-study-card-preview" alt="提示词美学卡预览" hidden />
+              </div>
+              <div class="prompt-study-preview-actions">
+                <button id="refresh-prompt-study-card" type="button">更新卡片预览</button>
+                <button id="download-prompt-study-card" type="button">下载 PNG</button>
+                <button class="primary" id="save-prompt-study-asset" type="button">保存到资产库</button>
+              </div>
+              <p>完整英文、中文与美学分析会同时写入本机资产 JSON，不只保存在图片里。</p>
+            </aside>
+          </div>
+        </section>
+
+        <div class="asset-existing-heading">
+          <span>QUICK SAVE</span>
+          <p>也可以沿用原流程，直接把当前主参考图或生成结果图存为双平台提示词资产。</p>
+        </div>
+        <div class="asset-save-bar">
+          <label class="asset-title-field" for="asset-title">
+            <span>资产名称 <b class="optional-note">可选</b></span>
+            <input id="asset-title" maxlength="120" placeholder="不填时由系统按画面自动命名" />
+          </label>
+          <div class="asset-save-actions">
+            <button class="asset-save-button" id="save-primary-asset" type="button">存主参考图</button>
+            <button class="asset-save-button" id="save-result-asset" type="button">存生成结果图</button>
+            <button class="asset-refresh-button" id="refresh-assets" type="button">刷新资产库</button>
+          </div>
+        </div>
+        <p class="asset-library-note" id="asset-library-note">保存时会同时保存 Midjourney 与 GPT Image 2 提示词，并在本机生成「画面＋双平台提示词」分享卡 PNG；旧资产可点“更新双平台分享卡”。</p>
+        <div class="asset-gallery-heading">
+          <div>
+            <span>ASSET GALLERY</span>
+            <h4>已存效果图</h4>
+          </div>
+          <p>卡片优先展示原始效果图和资产名称；提示词、美学分析与分享卡保留在卡片下方。</p>
+        </div>
+        <div class="asset-grid" id="asset-grid"></div>
+      </section>
+
+      <section class="product-prompt-lab workspace-view" id="product-prompt-lab" data-workspace-view="product" aria-labelledby="product-prompt-title" hidden>
+        <header class="product-prompt-heading">
+          <div>
+            <span class="section-kicker">V0.5.0 · PRODUCT PROMPT LAB</span>
+            <h2 id="product-prompt-title">产品提示词工坊</h2>
+            <p>产品图锁定身份，参考图借鉴方法，文字想法决定方向。即使没有完整参考图，也可以先从一句想法生成可继续调整的生图提示词。</p>
+          </div>
+          <span class="product-prompt-badge">独立模块 · 不改变原反推结果</span>
+        </header>
+
+        <div class="product-prompt-layout">
+          <section class="product-prompt-input-panel" aria-label="产品提示词输入">
+            <div class="product-prompt-panel-kicker"><span>01</span> INPUT EVIDENCE</div>
+            <div class="product-prompt-image-grid">
+              <div class="product-prompt-image-card" id="product-prompt-product-dropzone">
+                <input id="product-prompt-product-file" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+                <button class="product-prompt-image-button" id="product-prompt-product-button" type="button">
+                  <img id="product-prompt-product-preview" alt="产品提示词工坊的产品参考图" hidden />
+                  <span class="product-prompt-image-placeholder" aria-hidden="true">＋</span>
+                  <span class="product-prompt-image-copy"><strong id="product-prompt-product-copy">上传产品图</strong><small id="product-prompt-product-meta">可选 · 锁定形态、比例、材质与颜色</small></span>
+                </button>
+                <button class="product-prompt-image-remove" id="product-prompt-product-remove" type="button" hidden aria-label="移除产品参考图">×</button>
+              </div>
+              <div class="product-prompt-image-card" id="product-prompt-reference-dropzone">
+                <input id="product-prompt-reference-file" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+                <button class="product-prompt-image-button" id="product-prompt-reference-button" type="button">
+                  <img id="product-prompt-reference-preview" alt="产品提示词工坊的场景参考图" hidden />
+                  <span class="product-prompt-image-placeholder" aria-hidden="true">＋</span>
+                  <span class="product-prompt-image-copy"><strong id="product-prompt-reference-copy">上传场景参考图</strong><small id="product-prompt-reference-meta">可选 · 借鉴风格、构图或空间方法</small></span>
+                </button>
+                <button class="product-prompt-image-remove" id="product-prompt-reference-remove" type="button" hidden aria-label="移除场景参考图">×</button>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>你想生成什么 <b class="optional-note">图片、想法或续写方向</b></span>
+              <textarea id="product-prompt-idea" rows="4" placeholder="例如：让这个银灰色产品出现在雨夜湿润的黑色石台上，冷蓝环境光，右侧留出标题空间，画面要像高端科技广告。"></textarea>
+            </label>
+            <label class="field">
+              <span>产品补充信息 <b class="optional-note">可选</b></span>
+              <textarea id="product-prompt-product-notes" rows="3" placeholder="例如：圆柱形金属外壳，顶部有一条橙色指示灯；不要改变比例，不要增加按钮。"></textarea>
+            </label>
+
+            <div class="product-prompt-select-grid">
+              <label class="select-field">
+                <span>这次要做什么</span>
+                <select id="product-prompt-task">
+                  <option value="reverse">产品反推 · 从证据整理提示词</option>
+                  <option value="continue">场景续写 · 锁住产品进入新画面</option>
+                </select>
+              </label>
+              <label class="select-field">
+                <span>输出深度</span>
+                <select id="product-prompt-depth">
+                  <option value="quick">快速提示词 · 先拿结果</option>
+                  <option value="detailed">详细方案 · 产品锁定 + 场景拆解</option>
+                </select>
+              </label>
+            </div>
+            <p class="product-prompt-control-note" id="product-prompt-task-note">从产品图、参考图和文字中提取可确认的产品身份与画面语言，不擅自新增故事。</p>
+            <p class="product-prompt-control-note" id="product-prompt-depth-note">优先返回可复制的双平台提示词，适合先试一版。</p>
+
+            <div class="product-prompt-select-grid">
+              <label class="select-field">
+                <span>场景参考图用于</span>
+                <select id="product-prompt-reference-role">
+                  <option value="both">风格、构图、光线与空间方法</option>
+                  <option value="style">风格、光线、色彩与材质氛围</option>
+                  <option value="composition">构图、空间位置与镜头关系</option>
+                </select>
+              </label>
+              <label class="select-field">
+                <span>目标画幅</span>
+                <select id="product-prompt-aspect-ratio">
+                  <option value="16:9">16:9 · 横向电影画面</option>
+                  <option value="21:9">21:9 · 超宽大全景</option>
+                  <option value="3:2">3:2 · 摄影画幅</option>
+                  <option value="9:16">9:16 · 竖屏视频首帧</option>
+                  <option value="1:1">1:1 · 方形构图</option>
+                </select>
+              </label>
+            </div>
+            <p class="product-prompt-model-note">本模块沿用上方“输出与推理”里选择的 Codex 模型；不会改变原图片反推设置。</p>
+            <button class="product-prompt-generate" id="generate-product-prompt" type="button">生成产品提示词 <span aria-hidden="true">↗</span></button>
+            <p class="product-prompt-feedback" id="product-prompt-feedback" hidden aria-live="polite"></p>
+          </section>
+
+          <section class="product-prompt-output-panel" aria-label="产品提示词结果">
+            <div class="product-prompt-panel-kicker"><span>02</span> PROMPT OUTPUT</div>
+            <div class="product-prompt-empty">
+              <strong>先提供一项证据</strong>
+              <p>上传产品图、场景参考图，或写下一句想法。系统会把“产品身份”和“场景变量”分开，方便你继续改。</p>
+            </div>
+            <div class="product-prompt-results" id="product-prompt-results" hidden>
+              <p class="product-prompt-summary" id="product-prompt-summary"></p>
+              <div class="product-prompt-facts">
+                <label><span>产品身份锁定 <b class="optional-note">可编辑</b></span><textarea id="product-prompt-identity" rows="5"></textarea></label>
+                <label><span>场景与构图方向 <b class="optional-note">可编辑</b></span><textarea id="product-prompt-scene" rows="5"></textarea></label>
+              </div>
+
+              <article class="product-prompt-platform-card">
+                <header>
+                  <div><span class="platform-dot mj"></span><h3>Midjourney</h3><small>English 执行版 + 中文核对版</small></div>
+                  <div class="product-prompt-copy-actions"><button class="text-button" id="copy-product-prompt-midjourney" type="button">复制可执行命令</button><button class="text-button" id="copy-product-prompt-midjourney-chinese" type="button">复制中文</button></div>
+                </header>
+                <label><span>English 执行提示词</span><textarea id="product-prompt-midjourney-english" rows="8" spellcheck="false"></textarea></label>
+                <label><span>中文理解版</span><textarea id="product-prompt-midjourney-chinese" rows="5"></textarea></label>
+                <div class="product-prompt-meta-grid">
+                  <label><span>参考图用法</span><textarea id="product-prompt-midjourney-reference" rows="4"></textarea></label>
+                  <label><span>参数</span><textarea id="product-prompt-midjourney-parameters" rows="3" spellcheck="false"></textarea></label>
+                  <label class="wide"><span>负面引导</span><textarea id="product-prompt-midjourney-negative" rows="3"></textarea></label>
+                </div>
+              </article>
+
+              <article class="product-prompt-platform-card">
+                <header>
+                  <div><span class="platform-dot gpt"></span><h3>GPT Image 2</h3><small>中文执行版 + English 对照版</small></div>
+                  <div class="product-prompt-copy-actions"><button class="text-button" id="copy-product-prompt-gpt-chinese" type="button">复制中文</button><button class="text-button" id="copy-product-prompt-gpt-english" type="button">复制英文</button></div>
+                </header>
+                <label><span>中文执行提示词</span><textarea id="product-prompt-gpt-chinese" rows="8"></textarea></label>
+                <label><span>English 对照版</span><textarea id="product-prompt-gpt-english" rows="5" spellcheck="false"></textarea></label>
+                <div class="product-prompt-meta-grid">
+                  <label><span>图片角色</span><textarea id="product-prompt-gpt-roles" rows="4"></textarea></label>
+                  <label><span>编辑边界</span><textarea id="product-prompt-gpt-boundary" rows="4"></textarea></label>
+                  <label class="wide"><span>禁止项</span><textarea id="product-prompt-gpt-negative" rows="3"></textarea></label>
+                </div>
+              </article>
+
+              <section class="product-prompt-warnings" id="product-prompt-warnings" hidden>
+                <strong>需要人工核对</strong>
+                <ul id="product-prompt-warnings-list"></ul>
+              </section>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="video-workbench workspace-view" id="video-workbench" data-workspace-view="video" aria-labelledby="video-workbench-title" hidden>
+        <header class="video-workbench-heading">
+          <div>
+            <span class="section-kicker">V0.4.2 · LOCAL VIDEO REVERSE</span>
+            <h2 id="video-workbench-title">视频拉片工作台</h2>
+            <p>先在本地选帧，再逐镜反推。每张关键帧都可以直接送回图片工作台，继续做构图、空间和双平台提示词。</p>
+          </div>
+          <span class="video-status" id="video-status">尚未载入视频</span>
+        </header>
+
+        <div class="video-workbench-grid">
+          <section class="video-source-panel" aria-label="本地视频来源">
+            <div class="video-panel-kicker"><span>01</span> LOCAL SOURCE</div>
+            <input id="video-file" type="file" accept="video/mp4,video/webm,video/quicktime,video/ogg" hidden />
+            <button class="video-upload-button" id="video-upload-button" type="button">
+              <span class="upload-glyph" aria-hidden="true">＋</span>
+              <span><strong>选择本地视频</strong><small>MP4 · MOV · WEBM · 最大 250MB</small></span>
+            </button>
+            <div class="video-player-wrap" id="video-player-wrap" hidden>
+              <video id="video-player" controls playsinline preload="metadata"></video>
+              <div class="video-source-meta">
+                <span id="video-file-name">未选择视频</span>
+                <span id="video-meta">—</span>
+              </div>
+              <div class="video-player-actions">
+                <button id="capture-current-frame" type="button">采集当前帧</button>
+                <button id="use-current-frame-as-primary" type="button">当前帧作为图片 1</button>
+              </div>
+            </div>
+            <p class="video-privacy-note">视频仅在当前浏览器本地解码；点击「开始逐镜拉片」时，只有已选关键帧会通过本机 Codex 发送分析。</p>
+          </section>
+
+          <section class="video-frames-panel" aria-label="关键帧选择">
+            <div class="video-panel-head">
+              <div>
+                <div class="video-panel-kicker"><span>02</span> FRAME EVIDENCE</div>
+                <h3>选择关键帧</h3>
+                <p>先在下方设置分析片段；自动取帧、采集当前帧和逐镜拉片只针对选定范围。</p>
+              </div>
+              <span class="video-frame-count" id="video-frame-count">0 / 8 已选</span>
+            </div>
+            <div class="video-timeline-controls">
+              <input id="video-timeline" type="range" min="0" max="1" step="0.01" value="0" disabled aria-label="视频时间轴" />
+              <div><span id="video-current-time">00:00.0</span><span id="video-duration">00:00.0</span></div>
+            </div>
+            <div class="video-segment-editor" aria-label="选择视频分析片段">
+              <div class="video-segment-head">
+                <div>
+                  <span class="video-segment-kicker">ANALYSIS WINDOW</span>
+                  <strong>先截取要分析的段落</strong>
+                </div>
+                <span id="video-clip-label" class="video-clip-label">分析范围：载入视频后设置入点和出点</span>
+              </div>
+              <div class="video-segment-sliders">
+                <label>
+                  <span>入点</span>
+                  <input id="video-clip-start" type="range" min="0" max="1" step="0.01" value="0" disabled aria-label="分析片段入点" />
+                </label>
+                <label>
+                  <span>出点</span>
+                  <input id="video-clip-end" type="range" min="0" max="1" step="0.01" value="1" disabled aria-label="分析片段出点" />
+                </label>
+              </div>
+              <div class="video-segment-fields">
+                <label><span>入点（秒）</span><input id="video-clip-start-seconds" type="number" min="0" step="0.01" value="0" disabled /></label>
+                <label><span>出点（秒）</span><input id="video-clip-end-seconds" type="number" min="0" step="0.01" value="0" disabled /></label>
+                <div class="video-segment-actions">
+                  <button id="set-video-clip-start" type="button" disabled>当前时间设为入点</button>
+                  <button id="set-video-clip-end" type="button" disabled>当前时间设为出点</button>
+                  <button id="reset-video-clip" type="button" disabled>恢复整段</button>
+                </div>
+              </div>
+              <p class="video-segment-help">自动取帧、手动采集和逐镜拉片都只使用这个范围；原视频文件不会被修改。</p>
+            </div>
+            <div class="video-frame-actions">
+              <button id="sample-video-frames" type="button">自动取 6 帧</button>
+              <button id="clear-video-frames" type="button">清空关键帧</button>
+            </div>
+            <div class="video-frame-grid" id="video-frame-grid">
+              <p class="video-frames-empty">载入视频后，可先自动取帧；每一帧都可手动取消、删除或作为图片 1。</p>
+            </div>
+          </section>
+        </div>
+
+        <section class="video-analysis-controls" aria-label="视频反推设置">
+          <div class="video-analysis-copy">
+            <span class="section-kicker">03 · DIRECTOR NOTES</span>
+            <h3>逐镜拉片要求</h3>
+            <p>不填时只反推关键帧可见的画面。当前目标画幅沿用上方图片工作台的选择。</p>
+          </div>
+          <label class="field">
+            <span>导演补充 <b class="optional-note">可选</b></span>
+            <textarea id="video-director-note" rows="3" placeholder="例如：优先保留空间方向、产品形态、镜头节奏；不要把参考视频里的品牌故事带进重制。"></textarea>
+          </label>
+          <div class="suggestion-chips video-suggestion-chips" aria-label="导演补充常用指令">
+            <button type="button" data-fill-target="video-director-note" data-fill-mode="replace" data-fill-value="只反推关键帧中可见的画面、构图、镜头和节奏；无法确认的连续动作、剪辑点和声音必须明确标注为无法确认。">只忠实拉片</button>
+            <button type="button" data-fill-target="video-director-note" data-fill-value="优先锁定主体或产品的形态、比例、颜色、材质、服装或结构细节，以及其跨镜头的相对位置；不得擅自改变。">锁定主体／产品</button>
+            <button type="button" data-fill-target="video-director-note" data-fill-value="优先保持空间方向、主体进出方向、前中远景关系、时间段光线和主色调的连续性。">锁定空间连续性</button>
+            <button type="button" data-fill-target="video-director-note" data-fill-value="重点拆解景别、机位、镜头运动、焦距与景深；不确定的运动不能当作事实描述。">重点拆镜头语言</button>
+            <button type="button" data-fill-target="video-director-note" data-fill-value="每一镜都要给出可用于后续重制的静态首帧图像提示词和动态视频运动提示词，保持两者的主体、场景与光线一致。">输出可重制首帧</button>
+          </div>
+          <label class="field">
+            <span>明确排除 <b class="optional-note">可选</b></span>
+            <textarea id="video-exclusions" rows="2" placeholder="例如：不要 Logo、字幕、具体人物身份、额外情节。"></textarea>
+          </label>
+          <div class="video-analyze-row">
+            <div>
+              <strong>将已选关键帧拆成镜头</strong>
+              <span>输出每镜的静态图像提示词、动态视频提示词与 LibTV 15 字段分镜。</span>
+            </div>
+            <button class="video-analyze-button" id="analyze-video" type="button">开始逐镜拉片 <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="video-analysis-progress" id="video-analysis-progress" hidden aria-live="polite">
+            <div class="video-progress-head">
+              <div>
+                <span class="video-progress-kicker">LIVE STATUS · 服务状态</span>
+                <strong id="video-progress-title">等待开始</strong>
+              </div>
+              <span class="video-progress-percent" id="video-progress-percent">0%</span>
+            </div>
+            <div class="video-progress-track" id="video-progress-track" role="progressbar" aria-label="视频拉片预计进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span id="video-progress-bar"></span>
+            </div>
+            <div class="video-progress-meta">
+              <span id="video-progress-detail">—</span>
+              <span id="video-progress-elapsed">—</span>
+            </div>
+            <p class="video-progress-note" id="video-progress-note">模型分析阶段没有实时百分比接口，进度会按已确认的服务阶段和等待时间估算；如果请求失败，具体原因会保留在这里。</p>
+          </div>
+          <p class="video-analysis-feedback" id="video-analysis-feedback" hidden aria-live="polite"></p>
+        </section>
+
+        <section class="video-results" id="video-results" hidden aria-live="polite">
+          <header class="video-results-head">
+            <div>
+              <span class="section-kicker">SHOT BLUEPRINT</span>
+              <h3>逐镜分镜与提示词</h3>
+              <p id="video-summary"></p>
+            </div>
+            <div class="video-export-actions">
+              <div class="video-prompt-language-switch" role="group" aria-label="视频提示词语言">
+                <button data-video-language="zh" type="button" aria-pressed="true">中文</button>
+                <button data-video-language="en" type="button" aria-pressed="false">English</button>
+              </div>
+              <button id="copy-video-storyboard" type="button">复制 LibTV 15 字段</button>
+              <button id="download-video-storyboard" type="button">导出 Markdown</button>
+              <button id="clear-video-report" type="button">清空拉片结果</button>
+            </div>
+          </header>
+          <div class="video-continuity" id="video-continuity"></div>
+          <div class="video-shot-list" id="video-shot-list"></div>
+          <section class="video-warnings" id="video-warnings" hidden>
+            <strong>拉片边界</strong>
+            <ul id="video-warnings-list"></ul>
+          </section>
+        </section>
+      </section>
+      </main>
+
+      <aside class="app-inspector" aria-label="当前工作信息">
+        <div class="inspector-heading">
+          <span>NOW EDITING</span>
+          <strong id="inspector-workspace-title">首页</strong>
+          <p id="inspector-workspace-copy">查看项目状态，并决定这次从哪里开始。</p>
+        </div>
+        <div class="inspector-project">
+          <span>PROJECT</span>
+          <strong id="inspector-project-title">未命名项目</strong>
+          <small id="inspector-project-status">尚未保存到本地项目库</small>
+        </div>
+        <dl class="inspector-metrics">
+          <div><dt>主图</dt><dd id="inspector-image-status">未载入</dd></div>
+          <div><dt>资产</dt><dd id="inspector-asset-count">0</dd></div>
+          <div><dt>Codex</dt><dd id="inspector-codex-status">检查中</dd></div>
+        </dl>
+        <button class="inspector-assets-button" type="button" data-workspace-action="assets">打开资产库 <span aria-hidden="true">↗</span></button>
+      </aside>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

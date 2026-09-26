@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "summary", "tags", "platformPrompts", "warnings"],
+  "properties": {
+    "title": { "type": "string" },
+    "summary": { "type": "string" },
+    "tags": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 8,
+      "items": { "type": "string" }
+    },
+    "platformPrompts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["midjourney", "gptImage2"],
+      "properties": {
+        "midjourney": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["prompt", "promptChinese", "promptEnglish", "referenceUsage", "parameters", "negativeGuidance"],
+          "properties": {
+            "prompt": { "type": "string" },
+            "promptChinese": { "type": "string" },
+            "promptEnglish": { "type": "string" },
+            "referenceUsage": { "type": "string" },
+            "parameters": { "type": "string" },
+            "negativeGuidance": { "type": "string" }
+          }
+        },
+        "gptImage2": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["prompt", "promptChinese", "promptEnglish", "imageRoles", "editBoundary", "negativeGuidance"],
+          "properties": {
+            "prompt": { "type": "string" },
+            "promptChinese": { "type": "string" },
+            "promptEnglish": { "type": "string" },
+            "imageRoles": { "type": "string" },
+            "editBoundary": { "type": "string" },
+            "negativeGuidance": { "type": "string" }
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 8
+    }
+  }
+}

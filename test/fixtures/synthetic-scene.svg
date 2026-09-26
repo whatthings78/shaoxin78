@@ -1,0 +1,36 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="640" y1="0" x2="640" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#16232B"/>
+      <stop offset="0.54" stop-color="#536B70"/>
+      <stop offset="1" stop-color="#C18A54"/>
+    </linearGradient>
+    <linearGradient id="ridge" x1="640" y1="260" x2="640" y2="690" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#56666A"/>
+      <stop offset="1" stop-color="#111719"/>
+    </linearGradient>
+    <linearGradient id="light" x1="1038" y1="165" x2="614" y2="541" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD88B" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#FFD88B" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="22"/></filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0.08"/></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#sky)"/>
+  <circle cx="1010" cy="184" r="66" fill="#FFD991" opacity="0.83" filter="url(#blur)"/>
+  <circle cx="1010" cy="184" r="29" fill="#FFE3A8"/>
+  <path d="M0 447L138 345L255 414L390 292L523 412L665 248L798 388L949 275L1112 402L1280 307V720H0V447Z" fill="#607176" opacity="0.62"/>
+  <path d="M0 520L176 397L301 478L448 351L596 485L752 323L882 451L1012 365L1154 473L1280 392V720H0V520Z" fill="url(#ridge)"/>
+  <path d="M720 720L813 442L866 435L952 720H720Z" fill="#252C2D"/>
+  <path d="M744 720L820 461L847 456L921 720H744Z" fill="#A76F37" opacity="0.28"/>
+  <rect y="493" width="1280" height="108" fill="#D8D5C8" opacity="0.12" filter="url(#blur)"/>
+  <path d="M0 720V505L146 451L257 535L344 493L480 583L591 548L691 720H0Z" fill="#080D0E"/>
+  <path d="M1280 720V506L1179 452L1087 528L996 497L908 583L833 720H1280Z" fill="#0B1011"/>
+  <path d="M1076 206L713 591" stroke="url(#light)" stroke-width="120" opacity="0.42"/>
+  <path d="M584 604C674 574 779 571 872 606" stroke="#D9B77F" stroke-width="3" opacity="0.42"/>
+  <rect width="1280" height="720" filter="url(#grain)" opacity="0.42"/>
+</svg>
