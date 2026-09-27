@@ -12,6 +12,18 @@ v0.9.0 默认使用彩色主题，支持在顶部切换暗色、亮色和彩色�
 
 ![FRAME / DNA v0.9.0 彩色主题首页](docs/screenshots/v0.9-home-theme.png)
 
+下面是当前版本的主要工作区截图，便于快速理解产品流程：
+
+| 首页总览 | 图片反推 | 产品提示词工坊 |
+| --- | --- | --- |
+| ![首页总览](docs/screenshots/v0.9-home.png) | ![图片反推](docs/screenshots/v0.9-image-reverse.png) | ![产品提示词工坊](docs/screenshots/v0.9-product-workshop.png) |
+
+| 平台封面校准 | 视频拉片 | 视觉资产库 |
+| --- | --- | --- |
+| ![平台封面校准](docs/screenshots/v0.9-cover-calibrator.png) | ![视频拉片](docs/screenshots/v0.9-video-breakdown.png) | ![视觉资产库](docs/screenshots/v0.9-asset-library.png) |
+
+截图中的素材仅用于产品功能展示；仓库不包含用户本地资产库中的原始图片、视频或 Codex 凭据。
+
 ## 1. 项目解决什么问题
 
 使用不同生图或视频平台时，常见问题是：
